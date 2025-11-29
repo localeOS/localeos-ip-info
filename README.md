@@ -1,16 +1,15 @@
 # @localeos/ip-info
 
-Official LocaleOS IP Info SDK for tracking user analytics with privacy-focused system fingerprinting and IP geolocation.
+Official LocaleOS IP Info SDK for IP geolocation, analytics tracking, and comprehensive IP intelligence.
 
 ## Features
 
-- 🔒 **Privacy-First**: System fingerprinting instead of invasive tracking
-- 🎯 **One Log Per System**: Automatic deduplication ensures one entry per unique system
-- 📊 **Comprehensive Device Detection**: Browser, OS, device type, and more
-- 🌍 **IP Geolocation**: Automatic IP address detection and location tracking
-- 💾 **Smart Caching**: localStorage caching prevents unnecessary API calls on page refresh
-- 🔄 **Auto-Retry**: Built-in retry logic for failed requests
-- 🚀 **Lightweight**: Minimal bundle size with zero dependencies
+- 🌍 **IP Geolocation**: Automatic location detection with country, city, timezone, currency
+- 📊 **Analytics Tracking**: Privacy-first system fingerprinting (automatic when enabled)
+- 🎯 **One Log Per System**: Automatic deduplication ensures accurate analytics
+- 🔒 **Privacy-First**: No personal data collection, no cookies
+- 💾 **Smart Caching**: localStorage caching for location data
+- 🚀 **Lightweight**: ~16KB with minimal dependencies
 - 📦 **TypeScript Support**: Full type definitions included
 - 🌐 **Cross-Platform**: Works in all modern browsers
 
@@ -45,21 +44,21 @@ pnpm add @localeos/ip-info
 ```javascript
 import LocaleOS from '@localeos/ip-info';
 
-// Initialize with your API key - tracking happens automatically!
+// Initialize with your API key - tracking happens automatically if analytics is enabled!
 LocaleOS.init({
   apiKey: 'leos_your-api-key-here',
-  debug: true, // Enable debug mode during development
+  analytics: true, // Enable automatic visit tracking
 });
 ```
 
-**That's it!** The SDK automatically tracks when your app is visited. Each unique system is logged once and updated on subsequent visits.
+**That's it!** The SDK automatically tracks visits when `analytics: true`. Each unique system is logged once and updated on subsequent visits.
 
 ## Configuration Options
 
 ```typescript
 LocaleOS.init({
   // Required: Your API key from LocaleOS dashboard
-  apiKey: 'your-api-key',
+  apiKey: 'leos_your-api-key-here',
 
   // Optional: Enable/disable analytics tracking (defaults to false)
   analytics: true,
@@ -74,45 +73,18 @@ LocaleOS.init({
 
 ### `init(config: LocaleOSConfig): void`
 
-Initialize the SDK with your configuration. **Automatically tracks the visit when called.**
+Initialize the SDK with your configuration. Automatically tracks visits when `analytics: true`.
 
 ```javascript
 LocaleOS.init({
   apiKey: 'leos_your-api-key-here',
-  debug: true,
+  analytics: true,
 });
-// Visit is automatically logged!
-```
-
-### `track(event?: string | TrackingEvent): Promise<boolean>` _(Optional)_
-
-Manually track an additional event if needed. No personal data or metadata is collected - only system fingerprint and device info.
-
-```javascript
-// Simple event
-await LocaleOS.track('user_signup');
-
-// Named event
-await LocaleOS.track('purchase');
-
-// Object syntax
-await LocaleOS.track({ event: 'button_click' });
-```
-
-**Note:** Most apps won't need this since visits are tracked automatically on initialization.
-
-### `getFingerprint(): string | null`
-
-Get the current system fingerprint.
-
-```javascript
-const fingerprint = LocaleOS.getFingerprint();
-console.log(fingerprint); // "fp_abc123_xyz"
 ```
 
 ### `getDeviceInfo(): DeviceInfo | null`
 
-Get detailed device information.
+Get detailed device information from the browser.
 
 ```javascript
 const deviceInfo = LocaleOS.getDeviceInfo();
@@ -154,11 +126,89 @@ console.log(locationInfo);
 // }
 ```
 
-**Note:** This method is automatically cached in localStorage for 24 hours to prevent unnecessary API calls when the same system refreshes the page. The cache duration can be customized (see Caching Configuration below).
+**Note:** This method is automatically cached in localStorage for 24 hours to prevent unnecessary API calls.
+
+### `getComprehensiveData(ip?: string): Promise<ComprehensiveIPData | null>`
+
+Get complete IP intelligence data in ipdata.co compatible format.
+
+```javascript
+// Get data for user's IP
+const data = await LocaleOS.getComprehensiveData();
+
+// Get data for specific IP
+const data = await LocaleOS.getComprehensiveData('8.8.8.8');
+
+console.log(data);
+// Includes: geolocation, timezone, currency, ASN, company, privacy detection, security, device info
+```
+
+### `getTimezone(ip?: string): Promise<TimezoneInfo | null>`
+
+Get timezone information for an IP address.
+
+```javascript
+const timezone = await LocaleOS.getTimezone('8.8.8.8');
+console.log(timezone);
+// {
+//   name: "America/Los_Angeles",
+//   abbr: "PST",
+//   offset: "-0800",
+//   is_dst: false,
+//   current_time: "2024-01-15T10:30:00-08:00"
+// }
+```
+
+### `getCurrency(ip?: string): Promise<CurrencyInfo | null>`
+
+Get currency information for an IP address.
+
+```javascript
+const currency = await LocaleOS.getCurrency('8.8.8.8');
+console.log(currency);
+// {
+//   name: "US Dollar",
+//   code: "USD",
+//   symbol: "$",
+//   native: "$",
+//   plural: "US Dollars"
+// }
+```
+
+### `getASN(ip?: string): Promise<ASNInfo | null>`
+
+Get Autonomous System Number information.
+
+```javascript
+const asn = await LocaleOS.getASN('8.8.8.8');
+console.log(asn);
+// {
+//   asn: "AS15169",
+//   name: "Google LLC",
+//   domain: "google.com",
+//   route: "8.8.8.0/24",
+//   type: "isp"
+// }
+```
+
+### `getCompany(ip?: string): Promise<CompanyInfo | null>`
+
+Get company information for an IP address.
+
+```javascript
+const company = await LocaleOS.getCompany('8.8.8.8');
+console.log(company);
+// {
+//   name: "Google LLC",
+//   domain: "google.com",
+//   network: "8.8.8.0/24",
+//   type: "business"
+// }
+```
 
 ### `clearCache(): void`
 
-Clear the location cache from both memory and localStorage to force a fresh fetch on the next call.
+Clear the location cache from both memory and localStorage to force a fresh fetch.
 
 ```javascript
 LocaleOS.clearCache();
@@ -169,71 +219,22 @@ const freshLocation = await LocaleOS.getLocationInfo(); // Forces new API call
 
 ### Caching Configuration
 
-By default, location data is cached in localStorage for 24 hours to minimize API calls when the same system refreshes. You can customize this behavior:
+By default, location data is cached in localStorage for 24 hours:
 
 ```javascript
 // Custom cache duration (1 hour)
 LocaleOS.init({
-  apiKey: 'your-api-key',
+  apiKey: 'leos_your-api-key-here',
   analytics: true,
   cacheDuration: 60 * 60 * 1000, // 1 hour in milliseconds
 });
 
 // Disable caching completely
 LocaleOS.init({
-  apiKey: 'your-api-key',
+  apiKey: 'leos_your-api-key-here',
   analytics: true,
   cacheDuration: 0, // No caching
 });
-
-// Default: 24 hours
-LocaleOS.init({
-  apiKey: 'your-api-key',
-  analytics: true,
-  // cacheDuration not specified = 24 hours
-});
-```
-
-**Cache Behavior:**
-- Cache is stored in localStorage with a timestamp
-- Automatically expires after the configured duration
-- Cleared when `clearCache()` is called
-- Survives page refreshes but not browser/localStorage clears
-- Separate from analytics tracking (tracking always happens if enabled)
-
-**Benefits:**
-- Reduces API calls and improves performance
-- Prevents rate limiting on IP lookup services
-- Instant location data on subsequent page loads
-- Lower server costs for high-traffic applications
-
-### Disable Tracking
-
-You can completely disable tracking (useful for development, testing, or user preferences):
-
-```javascript
-LocaleOS.init({
-  apiKey: 'leos_your-api-key-here',
-  enabled: false, // Disable all tracking
-});
-
-// All tracking methods will return immediately without making API calls
-LocaleOS.track('event'); // Does nothing when disabled
-```
-
-**Note:** Tracking can also be disabled server-side in your LocaleOS dashboard. When disabled server-side, the SDK will still make API calls but they will be ignored by the server.
-
-### Error Handling
-
-All tracking methods return a Promise<boolean>:
-
-```javascript
-const success = await LocaleOS.track('event');
-if (success) {
-  console.log('Event tracked successfully');
-} else {
-  console.log('Failed to track event');
-}
 ```
 
 ### React Integration
@@ -246,9 +247,8 @@ function App() {
   useEffect(() => {
     LocaleOS.init({
       apiKey: process.env.REACT_APP_LOCALEOS_API_KEY,
-      debug: process.env.NODE_ENV === 'development',
+      analytics: true,
     });
-    // Visit is automatically tracked!
   }, []);
 
   return <div>Your App</div>;
@@ -258,7 +258,7 @@ function App() {
 ### Next.js Integration
 
 ```jsx
-// pages/_app.js
+// pages/_app.js or app/layout.tsx (with 'use client')
 import { useEffect } from 'react';
 import LocaleOS from '@localeos/ip-info';
 
@@ -266,8 +266,8 @@ function MyApp({ Component, pageProps }) {
   useEffect(() => {
     LocaleOS.init({
       apiKey: process.env.NEXT_PUBLIC_LOCALEOS_API_KEY,
+      analytics: true,
     });
-    // Visit is automatically tracked!
   }, []);
 
   return <Component {...pageProps} />;
@@ -284,6 +284,7 @@ import App from './App.vue';
 
 LocaleOS.init({
   apiKey: import.meta.env.VITE_LOCALEOS_API_KEY,
+  analytics: true,
 });
 
 const app = createApp(App);
@@ -292,25 +293,58 @@ app.mount('#app');
 
 ## How It Works
 
+### Automatic Analytics Tracking
+
+When `analytics: true`, the SDK automatically:
+1. Generates a unique system fingerprint
+2. Tracks the visit on initialization
+3. Uses fingerprints to ensure one log per system per app
+4. Updates existing logs instead of creating duplicates
+
 ### System Fingerprinting
 
-LocaleOS uses advanced browser fingerprinting to create a unique identifier for each system:
+LocaleOS uses advanced browser fingerprinting:
 
-1. **Canvas Fingerprinting**: Draws a unique pattern based on GPU/font rendering
-2. **WebGL Fingerprinting**: Detects graphics card information
-3. **Browser Properties**: User agent, language, timezone, screen resolution
-4. **Hardware Info**: CPU cores, device memory, platform
+- **Canvas Fingerprinting**: Unique patterns based on GPU/font rendering
+- **WebGL Fingerprinting**: Graphics card vendor and renderer
+- **Browser Properties**: User agent, language, timezone, screen resolution
+- **Hardware Info**: CPU cores, device memory, platform
 
 ### Privacy Considerations
 
-- **No Personal Data**: We don't collect names, emails, or IP addresses (IP is optional)
-- **One Entry Per System**: Prevents duplicate tracking
-- **No Cross-Site Tracking**: Each app has its own isolated fingerprints
-- **User Control**: Users can clear localStorage to reset their fingerprint
+- **No Personal Data**: No names, emails, or personal information
+- **One Entry Per System**: Automatic deduplication
+- **No Cross-Site Tracking**: Each app has isolated fingerprints
+- **User Control**: Users can clear localStorage to reset fingerprint
 
-### Automatic Deduplication
+## TypeScript Support
 
-The system uses the unique fingerprint to ensure only one log entry per system per app. If the same system visits multiple times, the existing log is updated rather than creating duplicates.
+Full TypeScript support with comprehensive type definitions:
+
+```typescript
+import LocaleOS from '@localeos/ip-info';
+import type {
+  LocaleOSConfig,
+  DeviceInfo,
+  LocationInfo,
+  TimezoneInfo,
+  CurrencyInfo,
+  ASNInfo,
+  CompanyInfo,
+  ComprehensiveIPData
+} from '@localeos/ip-info';
+
+const config: LocaleOSConfig = {
+  apiKey: process.env.NEXT_PUBLIC_LOCALEOS_API_KEY!,
+  analytics: true
+};
+
+LocaleOS.init(config);
+
+const device: DeviceInfo | null = LocaleOS.getDeviceInfo();
+const location: LocationInfo | null = await LocaleOS.getLocationInfo();
+const data: ComprehensiveIPData | null = await LocaleOS.getComprehensiveData();
+```
 
 ## Browser Support
 
@@ -325,4 +359,4 @@ MIT
 
 ## Support
 
-For questions and support, please open an issue on [GitHub](https://github.com/localeos/analytics/issues).
+For questions and support, please open an issue on [GitHub](https://github.com/localeOS/localeos-ip-info/issues).
