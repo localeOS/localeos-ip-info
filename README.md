@@ -36,7 +36,7 @@ pnpm add @localeos/ip-info
 
 ### 1. Get Your App ID
 
-1. Sign up at [LocaleOS Dashboard](https://your-domain.com)
+1. Sign up at [LocaleOS Dashboard](https://localeos.co)
 2. Create a new app
 3. Copy your 256-bit App ID
 
