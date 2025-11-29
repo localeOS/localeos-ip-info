@@ -26,11 +26,11 @@ Already installed! Located at `packages/localeos-analytics`
 
 ## Quick Start (3 Steps)
 
-### Step 1: Get Your App ID
+### Step 1: Get Your API Key
 
 1. Log in to your dashboard at `/dashboard`
 2. Click "Create New App"
-3. Copy the generated 256-bit App ID
+3. Copy the generated API Key
 
 ### Step 2: Initialize the SDK
 
@@ -51,7 +51,7 @@ export function LocaleOSProvider({
   appId
 }: {
   children: React.ReactNode;
-  appId: string;
+  apiKey: string;
 }) {
   useEffect(() => {
     LocaleOS.init({
@@ -72,13 +72,13 @@ export { default as LocaleOS } from '@localeos/ip-info';
 ```tsx
 import { LocaleOSProvider } from '@/components/localeos-provider';
 
-const LOCALEOS_APP_ID = 'your-256-bit-app-id';
+const LOCALEOS_API_KEY = 'leos_your-api-key-here';
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
-        <LocaleOSProvider appId={LOCALEOS_APP_ID}>
+        <LocaleOSProvider appId={LOCALEOS_API_KEY}>
           {children}
         </LocaleOSProvider>
       </body>
@@ -95,12 +95,12 @@ export default function RootLayout({ children }) {
 import { useEffect } from 'react';
 import LocaleOS from '@localeos/ip-info';
 
-const LOCALEOS_APP_ID = 'your-256-bit-app-id';
+const LOCALEOS_API_KEY = 'leos_your-api-key-here';
 
 function MyApp({ Component, pageProps }) {
   useEffect(() => {
     LocaleOS.init({
-      appId: LOCALEOS_APP_ID,
+      apiKey: LOCALEOS_API_KEY,
       debug: process.env.NODE_ENV === 'development',
       autoTrack: true,
     });
@@ -123,7 +123,7 @@ import LocaleOS from '@localeos/ip-info';
 function App() {
   useEffect(() => {
     LocaleOS.init({
-      appId: 'your-256-bit-app-id',
+      apiKey: 'leos_your-api-key-here',
       debug: true,
       autoTrack: true,
     });
@@ -147,7 +147,7 @@ export default App;
     import LocaleOS from '@localeos/ip-info';
 
     LocaleOS.init({
-      appId: 'your-256-bit-app-id',
+      apiKey: 'leos_your-api-key-here',
       debug: true,
       autoTrack: true,
     });
@@ -190,8 +190,8 @@ await LocaleOS.trackEvent('purchase', {
 
 ```typescript
 LocaleOS.init({
-  // Required: Your App ID from dashboard
-  appId: 'your-256-bit-app-id',
+  // Required: Your API key from dashboard
+  apiKey: 'leos_your-api-key-here',
 
   // Optional: Custom API endpoint (defaults to current origin)
   apiUrl: 'https://your-domain.com',
@@ -225,7 +225,7 @@ LocaleOS.init({
 1. **Initialize Once** - Add to your root component/layout
 2. **High in the Tree** - Initialize as early as possible to catch all page views
 3. **Client-Side Only** - Use `'use client'` directive in Next.js App Router
-4. **Environment Variables** - Store App ID in env vars for production
+4. **Environment Variables** - Store API key in env vars for production
 
 ### 📁 Recommended Locations by Framework
 
@@ -242,26 +242,26 @@ LocaleOS.init({
 
 ## Environment Variables (Recommended)
 
-Instead of hardcoding your App ID, use environment variables:
+Instead of hardcoding your API key, use environment variables:
 
 ### Next.js
 
 **File: `.env.local`**
 
 ```env
-NEXT_PUBLIC_LOCALEOS_APP_ID=your-256-bit-app-id
+NEXT_PUBLIC_LOCALEOS_API_KEY=leos_your-api-key-here
 ```
 
 **File: `app/layout.tsx`**
 
 ```tsx
-const LOCALEOS_APP_ID = process.env.NEXT_PUBLIC_LOCALEOS_APP_ID!;
+const LOCALEOS_API_KEY = process.env.NEXT_PUBLIC_LOCALEOS_API_KEY!;
 
 export default function RootLayout({ children }) {
   return (
     <html>
       <body>
-        <LocaleOSProvider appId={LOCALEOS_APP_ID}>
+        <LocaleOSProvider appId={LOCALEOS_API_KEY}>
           {children}
         </LocaleOSProvider>
       </body>
@@ -275,13 +275,13 @@ export default function RootLayout({ children }) {
 **File: `.env`**
 
 ```env
-VITE_LOCALEOS_APP_ID=your-256-bit-app-id
+VITE_LOCALEOS_API_KEY=leos_your-api-key-here
 ```
 
 **File: `src/App.tsx`**
 
 ```tsx
-const appId = import.meta.env.VITE_LOCALEOS_APP_ID;
+const appId = import.meta.env.VITE_LOCALEOS_API_KEY;
 
 LocaleOS.init({ appId });
 ```
@@ -291,13 +291,13 @@ LocaleOS.init({ appId });
 **File: `.env`**
 
 ```env
-REACT_APP_LOCALEOS_APP_ID=your-256-bit-app-id
+REACT_APP_LOCALEOS_API_KEY=leos_your-api-key-here
 ```
 
 **File: `src/App.tsx`**
 
 ```tsx
-const appId = process.env.REACT_APP_LOCALEOS_APP_ID;
+const appId = process.env.REACT_APP_LOCALEOS_API_KEY;
 
 LocaleOS.init({ appId });
 ```
@@ -309,7 +309,7 @@ LocaleOS.init({ appId });
 You already have this set up! Here's what was added:
 
 ### 1. Provider Component
-`components/localeos-provider.tsx` - Initializes SDK with App ID
+`components/localeos-provider.tsx` - Initializes SDK with API key
 
 ### 2. Root Integration
 `components/providers.tsx` - Wraps app with LocaleOS tracking
@@ -329,7 +329,7 @@ You already have this set up! Here's what was added:
 After initialization, you should see:
 
 ```
-LocaleOS initialized with App ID: 7a9f9a40e...
+LocaleOS initialized with API key: 7a9f9a40e...
 System fingerprint: fp_abc123_xyz
 Device info: { browser: "Chrome 120", os: "macOS", ... }
 ```
@@ -434,7 +434,7 @@ export function usePageTracking() {
 ### SDK Not Tracking
 
 1. Check browser console for initialization logs
-2. Ensure App ID is correct (256-bit hex string)
+2. Ensure API key is correct
 3. Verify API endpoint is accessible
 4. Check network tab for `/api/track` requests
 
@@ -455,7 +455,7 @@ npm install --save-dev @types/node
 
 1. ✅ Install package
 2. ✅ Initialize SDK in root component
-3. ✅ Get App ID from dashboard
+3. ✅ Get API key from dashboard
 4. ✅ Test integration
 5. ✅ View analytics in dashboard
 6. Track custom events

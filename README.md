@@ -34,20 +34,20 @@ pnpm add @localeos/ip-info
 
 ## Quick Start
 
-### 1. Get Your App ID
+### 1. Get Your API Key
 
 1. Sign up at [LocaleOS Dashboard](https://localeos.co)
 2. Create a new app
-3. Copy your 256-bit App ID
+3. Copy your API Key
 
 ### 2. Initialize the SDK
 
 ```javascript
 import LocaleOS from '@localeos/ip-info';
 
-// Initialize with your App ID - tracking happens automatically!
+// Initialize with your API key - tracking happens automatically!
 LocaleOS.init({
-  appId: 'your-256-bit-app-id',
+  apiKey: 'leos_your-api-key-here',
   debug: true, // Enable debug mode during development
 });
 ```
@@ -78,7 +78,7 @@ Initialize the SDK with your configuration. **Automatically tracks the visit whe
 
 ```javascript
 LocaleOS.init({
-  appId: 'your-app-id',
+  apiKey: 'leos_your-api-key-here',
   debug: true,
 });
 // Visit is automatically logged!
@@ -213,7 +213,7 @@ You can completely disable tracking (useful for development, testing, or user pr
 
 ```javascript
 LocaleOS.init({
-  appId: 'your-app-id',
+  apiKey: 'leos_your-api-key-here',
   enabled: false, // Disable all tracking
 });
 
@@ -245,7 +245,7 @@ import LocaleOS from '@localeos/ip-info';
 function App() {
   useEffect(() => {
     LocaleOS.init({
-      appId: process.env.REACT_APP_LOCALEOS_ID,
+      apiKey: process.env.REACT_APP_LOCALEOS_API_KEY,
       debug: process.env.NODE_ENV === 'development',
     });
     // Visit is automatically tracked!
@@ -265,7 +265,7 @@ import LocaleOS from '@localeos/ip-info';
 function MyApp({ Component, pageProps }) {
   useEffect(() => {
     LocaleOS.init({
-      appId: process.env.NEXT_PUBLIC_LOCALEOS_ID,
+      apiKey: process.env.NEXT_PUBLIC_LOCALEOS_API_KEY,
     });
     // Visit is automatically tracked!
   }, []);
@@ -283,7 +283,7 @@ import LocaleOS from '@localeos/ip-info';
 import App from './App.vue';
 
 LocaleOS.init({
-  appId: import.meta.env.VITE_LOCALEOS_ID,
+  apiKey: import.meta.env.VITE_LOCALEOS_API_KEY,
 });
 
 const app = createApp(App);
