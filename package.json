@@ -1,0 +1,41 @@
+{
+  "name": "@localeos/ip-info",
+  "version": "1.0.0",
+  "description": "Official LocaleOS IP Info SDK for tracking user analytics with system fingerprinting and IP geolocation",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts --clean",
+    "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "analytics",
+    "tracking",
+    "fingerprinting",
+    "localeos",
+    "privacy"
+  ],
+  "author": "LocaleOS",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "tsup": "^8.0.1",
+    "typescript": "^5.3.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/localeOS/localeos-ip-info"
+  },
+  "bugs": {
+    "url": "https://github.com/localeOS/localeos-ip-info/issues"
+  },
+  "homepage": "https://github.com/localeOS/localeos-ip-info#readme",
+  "dependencies": {
+    "recharts": "^3.5.0"
+  }
+}
