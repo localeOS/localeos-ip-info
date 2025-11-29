@@ -468,5 +468,5 @@ npm install --save-dev @types/node
 
 For issues or questions:
 - GitHub: https://github.com/localeos/analytics/issues
-- Email: support@localeos.com
-- Docs: https://docs.localeos.com
+- Email: support@localeos.co
+- Docs: https://docs.localeos.co
