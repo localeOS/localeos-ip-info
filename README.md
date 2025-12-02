@@ -1,6 +1,6 @@
 # @localeos/ip-info
 
-> **Version:** 1.0.13
+> **Version:** 1.0.14
 
 Official LocaleOS IP Info SDK for IP geolocation, analytics tracking, and comprehensive IP intelligence.
 
@@ -389,6 +389,69 @@ const device: DeviceInfo | null = LocaleOS.getDeviceInfo();
 const location: LocationInfo | null = await LocaleOS.getLocationInfo();
 const data: ComprehensiveIPData | null = await LocaleOS.getComprehensiveData();
 ```
+
+## Troubleshooting
+
+### "Failed to fetch" Error
+
+If you see this error in the console:
+```
+[LocaleOS] Error fetching location info: TypeError: Failed to fetch
+```
+
+**Cause:** CORS (Cross-Origin Resource Sharing) restrictions are blocking requests to `https://localeos.co/api/my-ip`.
+
+**Solution:** Use a custom `ipDetectionEndpoint` that runs on your own server:
+
+```typescript
+localeOS.init({
+  apiKey: 'your-api-key',
+  analytics: true,
+  ipDetectionEndpoint: '/api/my-ip', // Use your own endpoint
+});
+```
+
+Create the endpoint (Next.js example):
+
+```typescript
+// app/api/my-ip/route.ts
+import { NextRequest, NextResponse } from "next/server";
+
+export async function OPTIONS() {
+  return NextResponse.json({}, {
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, OPTIONS',
+    }
+  });
+}
+
+export async function GET(request: NextRequest) {
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0] || "Unknown";
+  return NextResponse.json({ ip }, {
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, OPTIONS',
+    }
+  });
+}
+```
+
+### Cache Not Invalidating
+
+If location data seems stale even after IP change:
+
+```javascript
+LocaleOS.clearCache();
+const freshLocation = await LocaleOS.getLocationInfo();
+```
+
+### Analytics Not Tracking
+
+Make sure:
+1. `analytics: true` is set in init
+2. Your API key is valid
+3. CSP headers allow `https://localeos.co`
 
 ## Browser Support
 

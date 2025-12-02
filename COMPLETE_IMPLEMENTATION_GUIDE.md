@@ -1,6 +1,6 @@
 # LocaleOS IP Info - Complete Implementation Guide
 
-> **Latest Version:** 1.0.13
+> **Latest Version:** 1.0.14
 > **Last Updated:** December 2025
 
 ## Table of Contents
