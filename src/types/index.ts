@@ -30,6 +30,14 @@ export interface LocaleOSConfig {
    * If not provided, falls back to 'https://api.ipify.org?format=json'
    */
   ipDetectionEndpoint?: string;
+
+  /**
+   * Custom API URL for LocaleOS API (optional)
+   * By default, uses same-origin proxy pattern (window.location.origin)
+   * Set to 'https://localeos.co' to call LocaleOS API directly (requires CSP adjustment)
+   * Or leave undefined to use your own /api/ip-lookup proxy route (no CSP issues)
+   */
+  apiUrl?: string;
 }
 
 /**

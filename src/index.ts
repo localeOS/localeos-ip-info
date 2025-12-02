@@ -41,7 +41,9 @@ class LocaleOSAnalytics {
 
     // Store API key securely
     this.apiKey = config.apiKey;
-    this.apiUrl = this.getDefaultApiUrl();
+
+    // Set API URL (custom or default)
+    this.apiUrl = config.apiUrl || this.getDefaultApiUrl();
     this.analyticsEnabled = config.analytics || false;
 
     // Set cache duration (defaults to 24 hours)
@@ -354,8 +356,13 @@ class LocaleOSAnalytics {
    * Get default API URL based on current environment
    */
   private getDefaultApiUrl(): string {
-    // Always use LocaleOS hosted API - no setup required for users
-    return 'https://localeos.co';
+    // Use same-origin proxy pattern by default (no CSP issues)
+    // Users need to implement /api/ip-lookup route
+    // Or they can set apiUrl: 'https://localeos.co' in config (requires CSP adjustment)
+    if (isBrowser()) {
+      return window.location.origin;
+    }
+    return 'http://localhost:3000'; // Fallback for SSR
   }
 
   /**
