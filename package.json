@@ -1,6 +1,6 @@
 {
   "name": "@localeos/ip-info",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Official LocaleOS IP Info SDK for tracking user analytics with system fingerprinting and IP geolocation",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
