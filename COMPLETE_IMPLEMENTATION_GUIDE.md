@@ -1,7 +1,8 @@
 # LocaleOS IP Info - Complete Implementation Guide
 
-> **Latest Version:** 1.0.14
+> **Latest Version:** 1.0.15 - Production Ready ✨
 > **Last Updated:** December 2025
+> **Status:** CORS Enabled - Works Out-of-the-Box
 
 ## Table of Contents
 
@@ -22,6 +23,8 @@
 
 1. **API Key** from [LocaleOS Dashboard](https://localeos.co)
 2. _(Optional)_ **CSP headers configured** if your app has strict Content Security Policy
+
+> **✨ Zero Configuration Required:** The SDK works out-of-the-box with CORS-enabled LocaleOS API. No server-side endpoints needed!
 
 ### 2-Step Integration
 
@@ -44,7 +47,7 @@ const location = await localeOS.getLocationInfo();
 console.log(location);
 ```
 
-> **Note:** The SDK now automatically detects the user's IP address using LocaleOS API. No additional endpoints needed!
+> **✅ Production Ready:** The SDK uses the CORS-enabled LocaleOS API at `https://localeos.co/api/my-ip` for automatic IP detection. Works from any domain without additional configuration!
 
 ---
 

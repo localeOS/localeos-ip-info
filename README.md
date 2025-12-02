@@ -1,6 +1,6 @@
 # @localeos/ip-info
 
-> **Version:** 1.0.14
+> **Version:** 1.0.15 - Production Ready ✨
 
 Official LocaleOS IP Info SDK for IP geolocation, analytics tracking, and comprehensive IP intelligence.
 
@@ -57,13 +57,16 @@ console.log(location);
 ```
 
 **That's it!** The SDK automatically:
-- Detects the user's IP address using LocaleOS API
-- Tracks visits when `analytics: true`
-- Ensures one log per unique system (no duplicates)
+- ✅ Detects the user's IP address using LocaleOS API (CORS enabled)
+- ✅ Tracks visits when `analytics: true`
+- ✅ Ensures one log per unique system (no duplicates)
+- ✅ Works out-of-the-box - no server-side endpoints needed
+
+> **Note:** LocaleOS API at `https://localeos.co/api/my-ip` has CORS enabled, so the SDK works from any domain without additional configuration.
 
 ### Optional: Configure CSP Headers
 
-If your app has strict Content Security Policy, add `https://localeos.co` to your CSP `connect-src` directive:
+If your app has **strict Content Security Policy**, add `https://localeos.co` to your CSP `connect-src` directive:
 
 **Next.js 16+:** Update `next.config.ts`:
 
@@ -392,51 +395,6 @@ const data: ComprehensiveIPData | null = await LocaleOS.getComprehensiveData();
 
 ## Troubleshooting
 
-### "Failed to fetch" Error
-
-If you see this error in the console:
-```
-[LocaleOS] Error fetching location info: TypeError: Failed to fetch
-```
-
-**Cause:** CORS (Cross-Origin Resource Sharing) restrictions are blocking requests to `https://localeos.co/api/my-ip`.
-
-**Solution:** Use a custom `ipDetectionEndpoint` that runs on your own server:
-
-```typescript
-localeOS.init({
-  apiKey: 'your-api-key',
-  analytics: true,
-  ipDetectionEndpoint: '/api/my-ip', // Use your own endpoint
-});
-```
-
-Create the endpoint (Next.js example):
-
-```typescript
-// app/api/my-ip/route.ts
-import { NextRequest, NextResponse } from "next/server";
-
-export async function OPTIONS() {
-  return NextResponse.json({}, {
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, OPTIONS',
-    }
-  });
-}
-
-export async function GET(request: NextRequest) {
-  const ip = request.headers.get("x-forwarded-for")?.split(",")[0] || "Unknown";
-  return NextResponse.json({ ip }, {
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, OPTIONS',
-    }
-  });
-}
-```
-
 ### Cache Not Invalidating
 
 If location data seems stale even after IP change:
@@ -451,7 +409,45 @@ const freshLocation = await LocaleOS.getLocationInfo();
 Make sure:
 1. `analytics: true` is set in init
 2. Your API key is valid
-3. CSP headers allow `https://localeos.co`
+3. CSP headers allow `https://localeos.co` (if you have strict CSP)
+
+### Custom IP Detection Endpoint (Advanced)
+
+If you need to use your own server-side IP detection endpoint instead of the default LocaleOS API:
+
+```typescript
+localeOS.init({
+  apiKey: 'your-api-key',
+  analytics: true,
+  ipDetectionEndpoint: '/api/my-ip', // Use custom endpoint
+});
+```
+
+Your endpoint must return JSON with an `ip` field:
+```json
+{"ip": "1.2.3.4"}
+```
+
+## Production Verification
+
+The LocaleOS API endpoint is production-ready and CORS-enabled:
+
+```bash
+# Test CORS headers
+curl -I https://localeos.co/api/my-ip
+
+# Expected headers:
+# access-control-allow-origin: *
+# access-control-allow-methods: GET, OPTIONS
+```
+
+```bash
+# Test IP detection
+curl https://localeos.co/api/my-ip
+
+# Expected response:
+# {"ip":"x.x.x.x"}
+```
 
 ## Browser Support
 
