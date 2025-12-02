@@ -354,10 +354,8 @@ class LocaleOSAnalytics {
    * Get default API URL based on current environment
    */
   private getDefaultApiUrl(): string {
-    if (isBrowser()) {
-      return window.location.origin;
-    }
-    return 'https://localhost:3000'; // Fallback
+    // Always use LocaleOS API - the library handles all API calls
+    return 'https://api.localeos.co';
   }
 
   /**
