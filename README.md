@@ -1,5 +1,7 @@
 # @localeos/ip-info
 
+> **Version:** 1.0.13
+
 Official LocaleOS IP Info SDK for IP geolocation, analytics tracking, and comprehensive IP intelligence.
 
 ## Features
@@ -39,28 +41,29 @@ pnpm add @localeos/ip-info
 2. Create a new app
 3. Copy your API Key
 
-### 2. Create IP Detection Endpoint (Required)
+### 2. Initialize the SDK
 
-To avoid CSP violations, create a server-side endpoint for IP detection:
+```javascript
+import localeOS from '@localeos/ip-info';
 
-**Next.js App Router:** Create `app/api/my-ip/route.ts`:
+localeOS.init({
+  apiKey: 'leos_your-api-key-here',
+  analytics: true, // Enable automatic visit tracking
+});
 
-```typescript
-import { NextRequest, NextResponse } from "next/server";
-
-export async function GET(request: NextRequest) {
-  const ip = request.headers.get("x-forwarded-for")?.split(",")[0] ||
-             request.headers.get("x-real-ip") ||
-             "8.8.8.8";
-  return NextResponse.json({ ip });
-}
+// Get user location info
+const location = await localeOS.getLocationInfo();
+console.log(location);
 ```
 
-**Next.js Pages Router:** Create `pages/api/my-ip.ts` - [See full guide](./COMPLETE_IMPLEMENTATION_GUIDE.md)
+**That's it!** The SDK automatically:
+- Detects the user's IP address using LocaleOS API
+- Tracks visits when `analytics: true`
+- Ensures one log per unique system (no duplicates)
 
-### 3. Configure CSP Headers (Required for Analytics)
+### Optional: Configure CSP Headers
 
-Add `https://localeos.co` to your CSP `connect-src` directive:
+If your app has strict Content Security Policy, add `https://localeos.co` to your CSP `connect-src` directive:
 
 **Next.js 16+:** Update `next.config.ts`:
 
@@ -75,20 +78,6 @@ async headers() {
   }];
 }
 ```
-
-### 4. Initialize the SDK
-
-```javascript
-import localeOS from '@localeos/ip-info';
-
-localeOS.init({
-  apiKey: 'leos_your-api-key-here',
-  analytics: true, // Enable automatic visit tracking
-  ipDetectionEndpoint: '/api/my-ip', // Use your server-side endpoint
-});
-```
-
-**That's it!** The SDK automatically tracks visits when `analytics: true`. Each unique system is logged once and updated on subsequent visits.
 
 > 📖 **Need detailed setup instructions?** See the [Complete Implementation Guide](./COMPLETE_IMPLEMENTATION_GUIDE.md)
 
@@ -106,11 +95,10 @@ localeOS.init({
   // Set to 0 to disable caching
   cacheDuration: 24 * 60 * 60 * 1000, // 24 hours
 
-  // Optional: Custom endpoint for IP detection (RECOMMENDED to avoid CSP issues)
-  // Use this if you want to avoid CSP issues by using your own server-side endpoint
-  // The endpoint should return JSON with an "ip" field
-  // Example: '/api/my-ip' or 'https://yourdomain.com/api/my-ip'
-  // If not provided, falls back to 'https://api.ipify.org?format=json'
+  // Optional: Custom endpoint for IP detection
+  // By default, uses LocaleOS API (https://localeos.co/api/my-ip)
+  // Only set this if you want to use your own server-side endpoint
+  // The endpoint must return JSON with an "ip" field: { "ip": "x.x.x.x" }
   ipDetectionEndpoint: '/api/my-ip',
 
   // Optional: Custom API URL for LocaleOS API (optional)

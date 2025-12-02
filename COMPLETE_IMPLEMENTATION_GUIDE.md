@@ -1,13 +1,13 @@
 # LocaleOS IP Info - Complete Implementation Guide
 
-> **Latest Version:** 1.0.11
+> **Latest Version:** 1.0.13
 > **Last Updated:** December 2025
 
 ## Table of Contents
 
 1. [Quick Start](#quick-start)
 2. [Installation](#installation)
-3. [Required Setup](#required-setup)
+3. [Basic Usage](#basic-usage)
 4. [Configuration](#configuration)
 5. [Framework-Specific Examples](#framework-specific-examples)
 6. [CSP Compliance](#csp-compliance)
@@ -21,10 +21,9 @@
 ### What You Need
 
 1. **API Key** from [LocaleOS Dashboard](https://localeos.co)
-2. **Server-side IP detection endpoint** (to avoid CSP violations)
-3. **CSP headers configured** (to allow calls to LocaleOS API)
+2. _(Optional)_ **CSP headers configured** if your app has strict Content Security Policy
 
-### 3-Step Integration
+### 2-Step Integration
 
 ```bash
 # Step 1: Install
@@ -32,17 +31,20 @@ npm install @localeos/ip-info
 ```
 
 ```typescript
-// Step 2: Create /api/my-ip endpoint (see Required Setup below)
-
-// Step 3: Initialize SDK
+// Step 2: Initialize and use
 import localeOS from '@localeos/ip-info';
 
 localeOS.init({
   apiKey: 'leos_your-api-key-here',
   analytics: true,
-  ipDetectionEndpoint: '/api/my-ip', // REQUIRED to avoid CSP issues
 });
+
+// Get user's location info
+const location = await localeOS.getLocationInfo();
+console.log(location);
 ```
+
+> **Note:** The SDK now automatically detects the user's IP address using LocaleOS API. No additional endpoints needed!
 
 ---
 
@@ -64,11 +66,42 @@ pnpm add @localeos/ip-info
 
 ---
 
-## Required Setup
+## Basic Usage
 
-### Step 1: Create IP Detection Endpoint
+### Simple Example
 
-**⚠️ CRITICAL:** You MUST create this endpoint to avoid CSP violations.
+```typescript
+import localeOS from '@localeos/ip-info';
+
+// Initialize once in your app
+localeOS.init({
+  apiKey: 'leos_your-api-key-here',
+  analytics: true,
+});
+
+// Get location info
+const location = await localeOS.getLocationInfo();
+console.log(location);
+// {
+//   ip: "8.8.8.8",
+//   country: "United States",
+//   countryCode: "US",
+//   city: "Mountain View",
+//   ...
+// }
+
+// Get comprehensive IP data
+const ipData = await localeOS.getComprehensiveData();
+console.log(ipData);
+
+// Get device info (no API call needed)
+const device = localeOS.getDeviceInfo();
+console.log(device);
+```
+
+### Advanced: Custom IP Detection Endpoint (Optional)
+
+**Only needed if:** You want to use your own server-side endpoint for IP detection instead of the default LocaleOS endpoint.
 
 #### Next.js App Router
 
@@ -79,17 +112,14 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
   try {
-    // Try to get IP from various headers (for proxies/load balancers)
     const forwardedFor = request.headers.get("x-forwarded-for");
     const realIp = request.headers.get("x-real-ip");
-    const cfConnectingIp = request.headers.get("cf-connecting-ip"); // Cloudflare
+    const cfConnectingIp = request.headers.get("cf-connecting-ip");
 
-    // Get the IP address from the most reliable source
     let ip = cfConnectingIp || forwardedFor?.split(",")[0] || realIp || "Unknown";
 
-    // For local development, return a public IP for testing
     if (ip === "::1" || ip === "127.0.0.1" || ip === "Unknown") {
-      ip = "8.8.8.8"; // Default to Google DNS for testing
+      ip = "8.8.8.8";
     }
 
     return NextResponse.json({ ip }, { status: 200 });
@@ -150,9 +180,7 @@ app.get('/api/my-ip', (req, res) => {
 });
 ```
 
-### Step 2: Configure CSP Headers (Next.js)
-
-If using analytics tracking, you need to allow connections to `https://localeos.co`.
+Then configure CSP headers to allow connections to LocaleOS:
 
 #### Next.js 16+ (Using next.config.ts)
 
@@ -178,7 +206,7 @@ const nextConfig: NextConfig = {
               style-src 'self' 'unsafe-inline';
               img-src 'self' data: https:;
               font-src 'self' data:;
-              connect-src 'self' https://localeos.co https://api.ipify.org;
+              connect-src 'self' https://localeos.co;
               frame-src 'self';
             `.replace(/\s{2,}/g, ' ').trim(),
           },
@@ -205,9 +233,10 @@ import localeOS from '@localeos/ip-info';
 localeOS.init({
   apiKey: 'leos_your-api-key-here',
   analytics: true,
-  ipDetectionEndpoint: '/api/my-ip',
 });
 ```
+
+That's it! The SDK will automatically use LocaleOS API to detect the user's IP address.
 
 ### All Configuration Options
 
@@ -225,14 +254,14 @@ localeOS.init({
   // Set to 0 to disable caching
   cacheDuration: 24 * 60 * 60 * 1000, // 24 hours
 
-  // Optional: Custom endpoint for IP detection (RECOMMENDED to avoid CSP issues)
-  // Use this if you want to avoid CSP issues by using your own server-side endpoint
-  // The endpoint should return JSON with an "ip" field
+  // Optional: Custom endpoint for IP detection
+  // By default, uses LocaleOS API (https://localeos.co/api/my-ip)
+  // Only set this if you want to use your own server-side endpoint
+  // The endpoint must return JSON with an "ip" field: { "ip": "x.x.x.x" }
   ipDetectionEndpoint: '/api/my-ip',
 
   // Optional: Custom API URL for LocaleOS API (defaults to 'https://localeos.co')
   // Only override if you have a custom proxy or self-hosted instance
-  // Note: Requires adding the API URL to your CSP connect-src directive
   apiUrl: 'https://localeos.co',
 });
 ```
@@ -259,7 +288,6 @@ export function LocaleOSProvider({ children }: { children: React.ReactNode }) {
       apiKey: process.env.NEXT_PUBLIC_LOCALEOS_API_KEY || '',
       analytics: true,
       cacheDuration: 24 * 60 * 60 * 1000,
-      ipDetectionEndpoint: '/api/my-ip', // Use server-side IP detection
     });
   }, []);
 

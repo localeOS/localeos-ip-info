@@ -20,7 +20,7 @@ class LocaleOSAnalytics {
   private locationCache: LocationInfo | null = null;
   private cacheDuration: number = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
   private cacheKey = 'localeos_location_cache';
-  private ipDetectionEndpoint: string = 'https://api.ipify.org?format=json';
+  private ipDetectionEndpoint: string = '';
 
   constructor() {
     // Empty constructor - configuration happens in init()
@@ -51,10 +51,8 @@ class LocaleOSAnalytics {
       this.cacheDuration = config.cacheDuration;
     }
 
-    // Set custom IP detection endpoint if provided
-    if (config.ipDetectionEndpoint) {
-      this.ipDetectionEndpoint = config.ipDetectionEndpoint;
-    }
+    // Set IP detection endpoint (use custom or default to LocaleOS API)
+    this.ipDetectionEndpoint = config.ipDetectionEndpoint || `${this.apiUrl}/api/my-ip`;
 
     // Always use internal fingerprinting
     this.fingerprint = getPersistentFingerprint();
