@@ -114,13 +114,24 @@ LocaleOS.init({
 
 ## How It Works
 
-### Default Behavior (Without Configuration)
+### Architecture
+The LocaleOS SDK uses a **proxy pattern** where all API calls go through YOUR server:
+
+```
+Browser (SDK) → Your Server (/api/ip-lookup) → LocaleOS Backend → Response
+         ✅ No external CSP issues - all requests stay on your domain
+```
+
+### IP Detection
+For detecting the user's IP address:
+
+**Default Behavior (Without Configuration)**
 ```
 Browser → api.ipify.org (external API) → Get IP
          ❌ May violate CSP
 ```
 
-### With Custom Endpoint (Recommended)
+**With Custom Endpoint (Recommended)**
 ```
 Browser → Your Server (/api/my-ip) → Get IP from headers → Return to browser
          ✅ No CSP violations
