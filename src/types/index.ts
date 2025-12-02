@@ -21,6 +21,15 @@ export interface LocaleOSConfig {
    * Location data is cached in localStorage to prevent unnecessary API calls
    */
   cacheDuration?: number;
+
+  /**
+   * Custom endpoint for IP detection (optional)
+   * Use this if you want to avoid CSP issues by using your own server-side endpoint
+   * The endpoint should return JSON with an "ip" field
+   * Example: '/api/my-ip' or 'https://yourdomain.com/api/my-ip'
+   * If not provided, falls back to 'https://api.ipify.org?format=json'
+   */
+  ipDetectionEndpoint?: string;
 }
 
 /**

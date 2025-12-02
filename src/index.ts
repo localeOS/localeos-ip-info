@@ -20,6 +20,7 @@ class LocaleOSAnalytics {
   private locationCache: LocationInfo | null = null;
   private cacheDuration: number = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
   private cacheKey = 'localeos_location_cache';
+  private ipDetectionEndpoint: string = 'https://api.ipify.org?format=json';
 
   constructor() {
     // Empty constructor - configuration happens in init()
@@ -48,6 +49,11 @@ class LocaleOSAnalytics {
       this.cacheDuration = config.cacheDuration;
     }
 
+    // Set custom IP detection endpoint if provided
+    if (config.ipDetectionEndpoint) {
+      this.ipDetectionEndpoint = config.ipDetectionEndpoint;
+    }
+
     // Always use internal fingerprinting
     this.fingerprint = getPersistentFingerprint();
 
@@ -68,6 +74,16 @@ class LocaleOSAnalytics {
   }
 
   /**
+   * Get user's IP address from configured endpoint
+   * @private
+   */
+  private async getUserIP(): Promise<string> {
+    const ipResponse = await fetch(this.ipDetectionEndpoint);
+    const ipData = await ipResponse.json();
+    return ipData.ip;
+  }
+
+  /**
    * Get location information from IP address
    * Includes country, city, timezone, currency, and device information
    * Uses localStorage cache to prevent unnecessary API calls
@@ -78,9 +94,9 @@ class LocaleOSAnalytics {
 
     try {
       // Always check current IP first (lightweight call)
-      const ipResponse = await fetch('https://api.ipify.org?format=json');
-      const ipData = await ipResponse.json();
-      const currentIp = ipData.ip;
+      // Get user IP from configured endpoint
+      const currentIp = await this.getUserIP();
+      
 
       // Check if we have memory cache and IP matches
       if (this.locationCache && this.locationCache.ip === currentIp) {
@@ -157,9 +173,9 @@ class LocaleOSAnalytics {
       // Get user's IP if not provided
       let targetIp = ip;
       if (!targetIp) {
-        const ipResponse = await fetch('https://api.ipify.org?format=json');
-        const ipData = await ipResponse.json();
-        targetIp = ipData.ip;
+        // Get user IP from configured endpoint
+        const currentIp = await this.getUserIP();
+        targetIp = currentIp;
       }
 
       // Fetch comprehensive data from ipdata endpoint with API key
@@ -189,9 +205,9 @@ class LocaleOSAnalytics {
       // Get user's IP if not provided
       let targetIp = ip;
       if (!targetIp) {
-        const ipResponse = await fetch('https://api.ipify.org?format=json');
-        const ipData = await ipResponse.json();
-        targetIp = ipData.ip;
+        // Get user IP from configured endpoint
+        const currentIp = await this.getUserIP();
+        targetIp = currentIp;
       }
 
       // Fetch timezone data with API key
@@ -221,9 +237,9 @@ class LocaleOSAnalytics {
       // Get user's IP if not provided
       let targetIp = ip;
       if (!targetIp) {
-        const ipResponse = await fetch('https://api.ipify.org?format=json');
-        const ipData = await ipResponse.json();
-        targetIp = ipData.ip;
+        // Get user IP from configured endpoint
+        const currentIp = await this.getUserIP();
+        targetIp = currentIp;
       }
 
       // Fetch currency data with API key
@@ -253,9 +269,9 @@ class LocaleOSAnalytics {
       // Get user's IP if not provided
       let targetIp = ip;
       if (!targetIp) {
-        const ipResponse = await fetch('https://api.ipify.org?format=json');
-        const ipData = await ipResponse.json();
-        targetIp = ipData.ip;
+        // Get user IP from configured endpoint
+        const currentIp = await this.getUserIP();
+        targetIp = currentIp;
       }
 
       // Fetch ASN data with API key
@@ -285,9 +301,9 @@ class LocaleOSAnalytics {
       // Get user's IP if not provided
       let targetIp = ip;
       if (!targetIp) {
-        const ipResponse = await fetch('https://api.ipify.org?format=json');
-        const ipData = await ipResponse.json();
-        targetIp = ipData.ip;
+        // Get user IP from configured endpoint
+        const currentIp = await this.getUserIP();
+        targetIp = currentIp;
       }
 
       // Fetch company data with API key
