@@ -39,24 +39,63 @@ pnpm add @localeos/ip-info
 2. Create a new app
 3. Copy your API Key
 
-### 2. Initialize the SDK
+### 2. Create IP Detection Endpoint (Required)
+
+To avoid CSP violations, create a server-side endpoint for IP detection:
+
+**Next.js App Router:** Create `app/api/my-ip/route.ts`:
+
+```typescript
+import { NextRequest, NextResponse } from "next/server";
+
+export async function GET(request: NextRequest) {
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0] ||
+             request.headers.get("x-real-ip") ||
+             "8.8.8.8";
+  return NextResponse.json({ ip });
+}
+```
+
+**Next.js Pages Router:** Create `pages/api/my-ip.ts` - [See full guide](./COMPLETE_IMPLEMENTATION_GUIDE.md)
+
+### 3. Configure CSP Headers (Required for Analytics)
+
+Add `https://localeos.co` to your CSP `connect-src` directive:
+
+**Next.js 16+:** Update `next.config.ts`:
+
+```typescript
+async headers() {
+  return [{
+    source: '/:path*',
+    headers: [{
+      key: 'Content-Security-Policy',
+      value: `connect-src 'self' https://localeos.co;`.replace(/\s{2,}/g, ' ').trim(),
+    }],
+  }];
+}
+```
+
+### 4. Initialize the SDK
 
 ```javascript
-import LocaleOS from '@localeos/ip-info';
+import localeOS from '@localeos/ip-info';
 
-// Initialize with your API key - tracking happens automatically if analytics is enabled!
-LocaleOS.init({
+localeOS.init({
   apiKey: 'leos_your-api-key-here',
   analytics: true, // Enable automatic visit tracking
+  ipDetectionEndpoint: '/api/my-ip', // Use your server-side endpoint
 });
 ```
 
 **That's it!** The SDK automatically tracks visits when `analytics: true`. Each unique system is logged once and updated on subsequent visits.
 
+> 📖 **Need detailed setup instructions?** See the [Complete Implementation Guide](./COMPLETE_IMPLEMENTATION_GUIDE.md)
+
 ## Configuration Options
 
 ```typescript
-LocaleOS.init({
+localeOS.init({
   // Required: Your API key from LocaleOS dashboard
   apiKey: 'leos_your-api-key-here',
 
@@ -66,6 +105,19 @@ LocaleOS.init({
   // Optional: Cache duration for location data in milliseconds (defaults to 24 hours)
   // Set to 0 to disable caching
   cacheDuration: 24 * 60 * 60 * 1000, // 24 hours
+
+  // Optional: Custom endpoint for IP detection (RECOMMENDED to avoid CSP issues)
+  // Use this if you want to avoid CSP issues by using your own server-side endpoint
+  // The endpoint should return JSON with an "ip" field
+  // Example: '/api/my-ip' or 'https://yourdomain.com/api/my-ip'
+  // If not provided, falls back to 'https://api.ipify.org?format=json'
+  ipDetectionEndpoint: '/api/my-ip',
+
+  // Optional: Custom API URL for LocaleOS API (optional)
+  // Default: 'https://localeos.co'
+  // Only override if you have a custom proxy or self-hosted instance
+  // Note: Requires adding the API URL to your CSP connect-src directive
+  apiUrl: 'https://localeos.co',
 });
 ```
 
@@ -260,13 +312,14 @@ function App() {
 ```jsx
 // pages/_app.js or app/layout.tsx (with 'use client')
 import { useEffect } from 'react';
-import LocaleOS from '@localeos/ip-info';
+import localeOS from '@localeos/ip-info';
 
 function MyApp({ Component, pageProps }) {
   useEffect(() => {
-    LocaleOS.init({
+    localeOS.init({
       apiKey: process.env.NEXT_PUBLIC_LOCALEOS_API_KEY,
       analytics: true,
+      ipDetectionEndpoint: '/api/my-ip', // Use server-side IP detection
     });
   }, []);
 
@@ -274,17 +327,20 @@ function MyApp({ Component, pageProps }) {
 }
 ```
 
+> **Important:** Don't forget to create the `/api/my-ip` endpoint! See [Complete Implementation Guide](./COMPLETE_IMPLEMENTATION_GUIDE.md)
+
 ### Vue Integration
 
 ```javascript
 // main.js
 import { createApp } from 'vue';
-import LocaleOS from '@localeos/ip-info';
+import localeOS from '@localeos/ip-info';
 import App from './App.vue';
 
-LocaleOS.init({
+localeOS.init({
   apiKey: import.meta.env.VITE_LOCALEOS_API_KEY,
   analytics: true,
+  ipDetectionEndpoint: '/api/my-ip',
 });
 
 const app = createApp(App);
