@@ -33,9 +33,9 @@ export interface LocaleOSConfig {
 
   /**
    * Custom API URL for LocaleOS API (optional)
-   * By default, uses same-origin proxy pattern (window.location.origin)
-   * Set to 'https://localeos.co' to call LocaleOS API directly (requires CSP adjustment)
-   * Or leave undefined to use your own /api/ip-lookup proxy route (no CSP issues)
+   * Default: 'https://localeos.co'
+   * Only override if you have a custom proxy or self-hosted instance
+   * Note: Requires adding the API URL to your CSP connect-src directive
    */
   apiUrl?: string;
 }

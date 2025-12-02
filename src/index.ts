@@ -356,13 +356,10 @@ class LocaleOSAnalytics {
    * Get default API URL based on current environment
    */
   private getDefaultApiUrl(): string {
-    // Use same-origin proxy pattern by default (no CSP issues)
-    // Users need to implement /api/ip-lookup route
-    // Or they can set apiUrl: 'https://localeos.co' in config (requires CSP adjustment)
-    if (isBrowser()) {
-      return window.location.origin;
-    }
-    return 'http://localhost:3000'; // Fallback for SSR
+    // Always use LocaleOS API by default
+    // Users need to add 'https://localeos.co' to their CSP connect-src
+    // This is standard practice for third-party SDKs
+    return 'https://localeos.co';
   }
 
   /**
