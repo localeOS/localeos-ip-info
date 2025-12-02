@@ -120,7 +120,7 @@ class LocaleOSAnalytics {
 
       // Fetch fresh location data
       const locationResponse = await fetch(
-        `${this.apiUrl}/api/ip-lookup?ip=${currentIp}&api-key=${this.apiKey}`
+        `${this.apiUrl}/api/ip-lookup?ip=${currentIp}&api_key=${this.apiKey}`
       );
       const locationData = await locationResponse.json();
 
@@ -179,7 +179,7 @@ class LocaleOSAnalytics {
       }
 
       // Fetch comprehensive data from ipdata endpoint with API key
-      const response = await fetch(`${this.apiUrl}/api/ipdata/${targetIp}?api-key=${this.apiKey}`);
+      const response = await fetch(`${this.apiUrl}/api/ipdata/${targetIp}?api_key=${this.apiKey}`);
 
       if (!response.ok) {
         throw new Error(`API returned status ${response.status}`);
@@ -211,7 +211,7 @@ class LocaleOSAnalytics {
       }
 
       // Fetch timezone data with API key
-      const response = await fetch(`${this.apiUrl}/api/ipdata/${targetIp}/time_zone?api-key=${this.apiKey}`);
+      const response = await fetch(`${this.apiUrl}/api/ipdata/${targetIp}/time_zone?api_key=${this.apiKey}`);
 
       if (!response.ok) {
         throw new Error(`API returned status ${response.status}`);
@@ -243,7 +243,7 @@ class LocaleOSAnalytics {
       }
 
       // Fetch currency data with API key
-      const response = await fetch(`${this.apiUrl}/api/ipdata/${targetIp}/currency?api-key=${this.apiKey}`);
+      const response = await fetch(`${this.apiUrl}/api/ipdata/${targetIp}/currency?api_key=${this.apiKey}`);
 
       if (!response.ok) {
         throw new Error(`API returned status ${response.status}`);
@@ -275,7 +275,7 @@ class LocaleOSAnalytics {
       }
 
       // Fetch ASN data with API key
-      const response = await fetch(`${this.apiUrl}/api/ipdata/${targetIp}/asn?api-key=${this.apiKey}`);
+      const response = await fetch(`${this.apiUrl}/api/ipdata/${targetIp}/asn?api_key=${this.apiKey}`);
 
       if (!response.ok) {
         throw new Error(`API returned status ${response.status}`);
@@ -307,7 +307,7 @@ class LocaleOSAnalytics {
       }
 
       // Fetch company data with API key
-      const response = await fetch(`${this.apiUrl}/api/ipdata/${targetIp}/company?api-key=${this.apiKey}`);
+      const response = await fetch(`${this.apiUrl}/api/ipdata/${targetIp}/company?api_key=${this.apiKey}`);
 
       if (!response.ok) {
         throw new Error(`API returned status ${response.status}`);
@@ -354,8 +354,11 @@ class LocaleOSAnalytics {
    * Get default API URL based on current environment
    */
   private getDefaultApiUrl(): string {
-    // Always use LocaleOS API - the library handles all API calls
-    return 'https://api.localeos.co';
+    // Use the same origin as the webapp (API runs on same server)
+    if (isBrowser()) {
+      return window.location.origin;
+    }
+    return 'http://localhost:3000'; // Fallback for SSR
   }
 
   /**
