@@ -354,11 +354,8 @@ class LocaleOSAnalytics {
    * Get default API URL based on current environment
    */
   private getDefaultApiUrl(): string {
-    // Use the same origin as the webapp (API runs on same server)
-    if (isBrowser()) {
-      return window.location.origin;
-    }
-    return 'http://localhost:3000'; // Fallback for SSR
+    // Always use LocaleOS hosted API - no setup required for users
+    return 'https://localeos.co';
   }
 
   /**
